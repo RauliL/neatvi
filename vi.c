@@ -67,7 +67,7 @@ static void vi_drawmsg(void)
 	vi_msg[0] = '\0';
 }
 
-static void vi_drawquick(char *s, int row)
+static void vi_drawquick(const char *s, int row)
 {
 	led_printmsg(s, row, xhl ? "---" : "___");
 }
@@ -145,9 +145,9 @@ static int vi_switch(int id)
 		return 1;
 	if (id != w_cur) {
 		char cmd[1024];
-		char *old = w_path && w_path[0] ? w_path : "/";
+		const char *old = w_path && w_path[0] ? w_path : "/";
 		int row = w_row, off = w_off, top = w_top, left = w_left;
-		char *ec = "ew";
+		const char *ec = "ew";
 		if (w_path && strcmp(w_path, ex_path()) == 0)
 			ec = "e";
 		snprintf(cmd, sizeof(cmd), "%s! %s", ec, old);
@@ -236,18 +236,18 @@ static void vi_back(int c)
 		vi_buf[vi_buflen++] = c;
 }
 
-static char *vi_char(void)
+static const char *vi_char(void)
 {
 	return led_read(&xkmap);
 }
 
 /* map cursor horizontal position to terminal column number */
-static int vi_pos(char *s, int pos)
+static int vi_pos(const char *s, int pos)
 {
 	return dir_context(s ? s : "") >= 0 ? pos - xleft : xleft + xcols - pos - 1;
 }
 
-static char *vi_prompt(char *msg, int *kmap, char *hist)
+static char *vi_prompt(const char *msg, int *kmap, char *hist)
 {
 	char *r, *s;
 	term_pos(xrows, vi_pos(msg, 0));
@@ -261,7 +261,7 @@ static char *vi_prompt(char *msg, int *kmap, char *hist)
 }
 
 /* read an ex input line */
-char *ex_read(char *msg)
+char *ex_read(const char *msg)
 {
 	struct sbuf *sb;
 	int c;
@@ -284,7 +284,7 @@ char *ex_read(char *msg)
 }
 
 /* show an ex message */
-void ex_show(char *msg)
+void ex_show(const char *msg)
 {
 	if (xvis) {
 		snprintf(vi_msg, sizeof(vi_msg), "%s", msg);
@@ -297,7 +297,7 @@ void ex_show(char *msg)
 }
 
 /* print an ex output line */
-void ex_print(char *line)
+void ex_print(const char *line)
 {
 	if (xvis) {
 		if (line && vi_printed == 0)
@@ -408,7 +408,7 @@ static int vi_nextcol(struct lbuf *lb, int dir, int *row, int *off)
 	return 0;
 }
 
-static int vi_findchar(struct lbuf *lb, char *cs, int cmd, int n, int *row, int *off)
+static int vi_findchar(struct lbuf *lb, const char *cs, int cmd, int n, int *row, int *off)
 {
 	if (cs != vi_charlast)
 		strcpy(vi_charlast, cs);
@@ -421,7 +421,7 @@ static int vi_search(int cmd, int cnt, int *row, int *off)
 	char *kwd;
 	int r = *row;
 	int o = *off;
-	char *failed = NULL;
+	const char *failed = NULL;
 	int len = 0;
 	int i, dir;
 	if (cmd == '/' || cmd == '?') {
@@ -436,7 +436,7 @@ static int vi_search(int cmd, int cnt, int *row, int *off)
 		sbuf_str(sb, kw);
 		free(kw);
 		kw = sbuf_buf(sb);
-		if ((re = re_read(&kw))) {
+		if ((re = re_read((const char **) &kw))) {
 			ex_kwdset(re[0] ? re : NULL, cmd == '/' ? +1 : -1);
 			if (re[0]) {
 				reg_putln('/', re);
@@ -539,10 +539,10 @@ static int vi_motionln(int *row, int cmd)
 	return c;
 }
 
-static int vi_curword(struct lbuf *lb, char *dst, int len, int row, int off, char *ext)
+static int vi_curword(struct lbuf *lb, char *dst, int len, int row, int off, const char *ext)
 {
 	char *ln = lbuf_get(lb, row);
-	char *beg, *end;
+	const char *beg, *end;
 	if (!ln)
 		return 1;
 	beg = uc_chr(ln, ren_noeol(ln, off));
@@ -569,7 +569,7 @@ static int vi_motion(int *row, int *off)
 	char *ln = lbuf_get(xb, *row);
 	int dir = dir_context(ln ? ln : "");
 	int mark, mark_row, mark_off;
-	char *cs;
+	const char *cs;
 	int mv;
 	int i;
 	if ((mv = vi_motionln(row, 0))) {
@@ -844,10 +844,10 @@ static void vi_nextline(void)
 static void vi_showinfo(char *ln)
 {
 	char cmd[512];
-	char *info = " ";
-	char *beg = NULL, *end = NULL;
+	const char *info = " ";
+	const char *beg = NULL, *end = NULL;
 	int lastkind = 0;
-	char *s, *r;
+	const char *s, *r;
 	for (s = ln; s && *s; s = uc_next(s)) {
 		int kind = uc_kind(s);
 		if (lastkind != 1 && kind == 1)
@@ -936,7 +936,7 @@ static int vi_case(int r1, int o1, int r2, int o2, int lnmode, int cmd)
 			if (cmd == '~')
 				s[0] = islower(c) ? toupper(c) : tolower(c);
 		}
-		s = uc_next(s);
+		s = (char *) uc_next(s);
 	}
 	pref = lnmode ? uc_dup("") : uc_sub(lbuf_get(xb, r1), 0, o1);
 	post = lnmode ? uc_dup("\n") : uc_sub(lbuf_get(xb, r2), o2, -1);
@@ -1123,7 +1123,7 @@ static int vc_put(int cmd)
 		sbuf_free(sb);
 	} else {
 		struct sbuf *sb = sbuf_make();
-		char *ln = xrow < lbuf_len(xb) ? lbuf_get(xb, xrow) : "\n";
+		const char *ln = xrow < lbuf_len(xb) ? lbuf_get(xb, xrow) : "\n";
 		int off = ren_noeol(ln, xoff) + (ln[0] != '\n' && cmd == 'p');
 		char *s = uc_sub(ln, 0, off);
 		sbuf_str(sb, s);
@@ -1217,7 +1217,7 @@ static int vc_status(void)
 
 static int vc_charinfo(void)
 {
-	char *c = uc_chr(lbuf_get(xb, xrow), xoff);
+	const char *c = uc_chr(lbuf_get(xb, xrow), xoff);
 	if (c) {
 		char cbuf[8] = "";
 		memcpy(cbuf, c, uc_len(c));
@@ -1229,11 +1229,11 @@ static int vc_charinfo(void)
 static int vc_replace(void)
 {
 	int cnt = MAX(1, vi_arg1);
-	char *cs = vi_char();
+	const char *cs = vi_char();
 	char *ln = lbuf_get(xb, xrow);
 	struct sbuf *sb;
 	char *pref, *post;
-	char *s;
+	const char *s;
 	int off, i;
 	if (!ln || !cs)
 		return 0;

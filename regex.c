@@ -56,8 +56,8 @@ struct regex {
 
 /* regular expression matching state */
 struct rstate {
-	char *s;		/* the current position in the string */
-	char *o;		/* the beginning of the string */
+	const char *s;		/* the current position in the string */
+	const char *o;		/* the beginning of the string */
 	int mark[NGRPS * 2];	/* marks for RI_MARK */
 	int pc;			/* program counter */
 	int flg;		/* flags passed to regcomp() and regexec() */
@@ -95,7 +95,7 @@ static void rnode_free(struct rnode *rnode)
 	free(rnode);
 }
 
-static int uc_len(char *s)
+static int uc_len(const char *s)
 {
 	int c = (unsigned char) s[0];
 	if (~c & 0xc0)		/* ASCII or invalid */
@@ -109,7 +109,7 @@ static int uc_len(char *s)
 	return 1;
 }
 
-static int uc_dec(char *s)
+static int uc_dec(const char *s)
 {
 	int c = (unsigned char) s[0];
 	if (~c & 0xc0)		/* ASCII or invalid */
@@ -134,7 +134,7 @@ static void ratom_copy(struct ratom *dst, struct ratom *src)
 	}
 }
 
-static int brk_len(char *s)
+static int brk_len(const char *s)
 {
 	int n = 1;
 	if (s[n] == '^')	/* exclusion mark */
@@ -151,7 +151,7 @@ static int brk_len(char *s)
 	return s[n] == ']' ? n + 1 : n;
 }
 
-static void ratom_readbrk(struct ratom *ra, char **pat)
+static void ratom_readbrk(struct ratom *ra, const char **pat)
 {
 	int len = brk_len(*pat);
 	ra->ra = RA_BRK;
@@ -161,9 +161,9 @@ static void ratom_readbrk(struct ratom *ra, char **pat)
 	*pat += len;
 }
 
-static void ratom_read(struct ratom *ra, char **pat)
+static void ratom_read(struct ratom *ra, const char **pat)
 {
-	char *s;
+	const char *s;
 	int len;
 	switch ((unsigned char) **pat) {
 	case '.':
@@ -205,20 +205,20 @@ static void ratom_read(struct ratom *ra, char **pat)
 	}
 }
 
-static char *uc_beg(char *beg, char *s)
+static const char *uc_beg(const char *beg, const char *s)
 {
 	while (s > beg && (((unsigned char) *s) & 0xc0) == 0x80)
 		s--;
 	return s;
 }
 
-static int isword(char *s)
+static int isword(const char *s)
 {
 	int c = (unsigned char) s[0];
 	return isalnum(c) || c == '_' || c > 127;
 }
 
-static char *brk_classes[][2] = {
+static const char *brk_classes[][2] = {
 	{":alnum:", "a-zA-Z0-9"},
 	{":alpha:", "a-zA-Z"},
 	{":blank:", " \t"},
@@ -232,20 +232,20 @@ static char *brk_classes[][2] = {
 	{":xdigit:", "a-fA-F0-9"},
 };
 
-static int brk_match(char *brk, int c, int flg)
+static int brk_match(const char *brk, int c, int flg)
 {
 	int beg, end;
 	int i;
 	int not = brk[0] == '^';
-	char *p = not ? brk + 1 : brk;
-	char *p0 = p;
+	const char *p = not ? brk + 1 : brk;
+	const char *p0 = p;
 	if (flg & REG_ICASE && c < 128 && isupper(c))
 		c = tolower(c);
 	while (*p && (p == p0 || *p != ']')) {
 		if (p[0] == '[' && p[1] == ':') {
 			for (i = 0; i < LEN(brk_classes); i++) {
-				char *cc = brk_classes[i][0];
-				char *cp = brk_classes[i][1];
+				const char *cc = brk_classes[i][0];
+				const char *cp = brk_classes[i][1];
 				if (!strncmp(cc, p + 1, strlen(cc)))
 					if (!brk_match(cp, c, flg))
 						return not;
@@ -274,8 +274,8 @@ static int brk_match(char *brk, int c, int flg)
 static int ratom_match(struct ratom *ra, struct rstate *rs)
 {
 	if (ra->ra == RA_CHR && !(rs->flg & REG_ICASE)) {
-		char *s = ra->s;
-		char *r = rs->s;
+		const char *s = ra->s;
+		const char *r = rs->s;
 		while (*s && *s == *r)
 			s++, r++;
 		if (*s)
@@ -329,9 +329,9 @@ static int ratom_match(struct ratom *ra, struct rstate *rs)
 	return 1;
 }
 
-static struct rnode *rnode_parse(char **pat);
+static struct rnode *rnode_parse(const char **pat);
 
-static struct rnode *rnode_grp(char **pat)
+static struct rnode *rnode_grp(const char **pat)
 {
 	struct rnode *rnode = NULL;
 	if ((*pat)[0] != '(')
@@ -350,7 +350,7 @@ static struct rnode *rnode_grp(char **pat)
 	return rnode_make(RN_GRP, rnode, NULL);
 }
 
-static struct rnode *rnode_atom(char **pat)
+static struct rnode *rnode_atom(const char **pat)
 {
 	struct rnode *rnode;
 	if (!**pat)
@@ -399,7 +399,7 @@ static struct rnode *rnode_atom(char **pat)
 	return rnode;
 }
 
-static struct rnode *rnode_seq(char **pat)
+static struct rnode *rnode_seq(const char **pat)
 {
 	struct rnode *c1 = rnode_atom(pat);
 	struct rnode *c2;
@@ -409,7 +409,7 @@ static struct rnode *rnode_seq(char **pat)
 	return c2 ? rnode_make(RN_CAT, c1, c2) : c1;
 }
 
-static struct rnode *rnode_parse(char **pat)
+static struct rnode *rnode_parse(const char **pat)
 {
 	struct rnode *c1 = rnode_seq(pat);
 	struct rnode *c2;
@@ -534,7 +534,7 @@ static void rnode_emit(struct rnode *n, struct regex *p)
 		p->p[jmpend[i]].a2 = p->n;
 }
 
-int regcomp(regex_t *preg, char *pat, int flg)
+int regcomp(regex_t *preg, const char *pat, int flg)
 {
 	struct rnode *rnode = rnode_parse(&pat);
 	struct regex *re;
@@ -626,11 +626,11 @@ static int re_recmatch(struct regex *re, struct rstate *rs, int nsub, regmatch_t
 	return 1;
 }
 
-int regexec(regex_t *preg, char *s, int nsub, regmatch_t psub[], int flg)
+int regexec(regex_t *preg, const char *s, int nsub, regmatch_t psub[], int flg)
 {
 	struct regex *re = *preg;
 	struct rstate rs;
-	char *o = s;
+	const char *o = s;
 	memset(&rs, 0, sizeof(rs));
 	rs.flg = re->flg | flg;
 	rs.o = s;

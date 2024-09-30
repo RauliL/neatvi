@@ -6,10 +6,10 @@
 #include "vi.h"
 
 /* specify the screen position of the characters in s; reordering version */
-static int *ren_position_reorder(char *s)
+static int *ren_position_reorder(const char *s)
 {
 	int i, n;
-	char **chrs = uc_chop(s, &n);
+	const char **chrs = uc_chop(s, &n);
 	int *off, *pos;
 	int cpos = 0;
 	pos = malloc((n + 1) * sizeof(pos[0]));
@@ -31,7 +31,7 @@ static int *ren_position_reorder(char *s)
 }
 
 /* specify the screen position of the characters in s; fast version */
-int *ren_position(char *s)
+int *ren_position(const char *s)
 {
 	int cpos = 0;
 	int *pos;
@@ -121,7 +121,7 @@ int ren_cursor(char *s, int p)
 }
 
 /* return an offset before EOL */
-int ren_noeol(char *s, int o)
+int ren_noeol(const char *s, int o)
 {
 	int n = s ? uc_slen(s) : 0;
 	if (o >= n)
@@ -143,10 +143,10 @@ int ren_next(char *s, int p, int dir)
 	return s && uc_chr(s, ren_off(s, p))[0] != '\n' ? p : -1;
 }
 
-static char *ren_placeholder(char *s, int *wid)
+static const char *ren_placeholder(const char *s, int *wid)
 {
 	static int bits = 0xffff;	/* common bits in placeholders */
-	char *src, *dst;
+	const char *src, *dst;
 	int i;
 	if (bits == 0xffff) {
 		for (i = 0; !conf_placeholder(i, &src, &dst, wid); i++)
@@ -164,7 +164,7 @@ static char *ren_placeholder(char *s, int *wid)
 	return NULL;
 }
 
-int ren_cwid(char *s, int pos)
+int ren_cwid(const char *s, int pos)
 {
 	int wid;
 	if (s[0] == '\t')
@@ -174,8 +174,8 @@ int ren_cwid(char *s, int pos)
 	return uc_wid(s);
 }
 
-char *ren_translate(char *s, char *ln)
+const char *ren_translate(const char *s, const char *ln)
 {
-	char *p = ren_placeholder(s, NULL);
+	const char *p = ren_placeholder(s, NULL);
 	return p || !xshape ? p : uc_shape(ln, s);
 }

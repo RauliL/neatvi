@@ -80,7 +80,7 @@ void term_commit(void)
 	}
 }
 
-static void term_out(char *s)
+static void term_out(const char *s)
 {
 	if (term_sbuf)
 		sbuf_str(term_sbuf, s);
@@ -88,7 +88,7 @@ static void term_out(char *s)
 		write(1, s, strlen(s));
 }
 
-void term_str(char *s)
+void term_str(const char *s)
 {
 	term_out(s);
 }
@@ -187,7 +187,7 @@ int term_read(void)
 }
 
 /* return a static string that changes text attributes from old to att */
-char *term_seqattr(int att, int old)
+const char *term_seqattr(int att, int old)
 {
 	static char buf[128];
 	char *s = buf;
@@ -218,7 +218,7 @@ char *term_seqattr(int att, int old)
 	return buf;
 }
 
-char *term_seqkill(void)
+const char *term_seqkill(void)
 {
 	return "\33[K";
 }

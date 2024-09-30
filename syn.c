@@ -14,7 +14,7 @@ static struct ftmap {
 static struct rset *syn_ftrs;
 static int syn_ctx;
 
-static struct rset *syn_find(char *ft)
+static struct rset *syn_find(const char *ft)
 {
 	int i;
 	for (i = 0; i < LEN(ftmap); i++)
@@ -23,10 +23,10 @@ static struct rset *syn_find(char *ft)
 	return NULL;
 }
 
-static struct rset *syn_make(char *name)
+static struct rset *syn_make(const char *name)
 {
-	char *pats[256] = {NULL};
-	char *ft, *pat;
+	const char *pats[256] = {NULL};
+	const char *ft, *pat;
 	int i;
 	int n = 0;
 	if (name == NULL || !name[0])
@@ -57,7 +57,7 @@ void syn_context(int att)
 	syn_ctx = att;
 }
 
-int *syn_highlight(char *ft, char *s)
+int *syn_highlight(const char *ft, const char *s)
 {
 	int subs[16 * 2];
 	int n = uc_slen(s);
@@ -99,10 +99,10 @@ int *syn_highlight(char *ft, char *s)
 	return att;
 }
 
-char *syn_filetype(char *path)
+const char *syn_filetype(const char *path)
 {
 	int hl = rset_find(syn_ftrs, path, 0, NULL, 0);
-	char *ft;
+	const char *ft;
 	if (!conf_filetype(hl, &ft, NULL))
 		return ft;
 	return "";
@@ -110,8 +110,8 @@ char *syn_filetype(char *path)
 
 void syn_init(void)
 {
-	char *pats[128] = {NULL};
-	char *pat;
+	const char *pats[128] = {NULL};
+	const char *pat;
 	int i;
 	for (i = 0; !conf_filetype(i, NULL, &pat) && i < LEN(pats); i++)
 		pats[i] = pat;

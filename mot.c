@@ -4,7 +4,7 @@
 
 int lbuf_indents(struct lbuf *lb, int r)
 {
-	char *ln = lbuf_get(lb, r);
+	const char *ln = lbuf_get(lb, r);
 	int o;
 	if (!ln)
 		return 0;
@@ -13,7 +13,7 @@ int lbuf_indents(struct lbuf *lb, int r)
 	return o;
 }
 
-static int uc_nextdir(char **s, char *beg, int dir)
+static int uc_nextdir(const char **s, const char *beg, int dir)
 {
 	if (dir < 0) {
 		if (*s == beg)
@@ -27,10 +27,10 @@ static int uc_nextdir(char **s, char *beg, int dir)
 	return 0;
 }
 
-int lbuf_findchar(struct lbuf *lb, char *cs, int cmd, int n, int *row, int *off)
+int lbuf_findchar(struct lbuf *lb, const char *cs, int cmd, int n, int *row, int *off)
 {
-	char *ln = lbuf_get(lb, *row);
-	char *s;
+	const char *ln = lbuf_get(lb, *row);
+	const char *s;
 	int dir = (cmd == 'f' || cmd == 't') ? +1 : -1;
 	if (!ln)
 		return 1;
@@ -90,7 +90,7 @@ int lbuf_paragraphbeg(struct lbuf *lb, int dir, int *row, int *off)
 	return 0;
 }
 
-int lbuf_sectionbeg(struct lbuf *lb, int dir, char *sec, int *row, int *off)
+int lbuf_sectionbeg(struct lbuf *lb, int dir, const char *sec, int *row, int *off)
 {
 	struct rstr *re = rstr_make(sec, 0);
 	*row += dir;
@@ -135,7 +135,7 @@ static int lbuf_next(struct lbuf *lb, int dir, int *r, int *o)
 }
 
 /* return a pointer to the character at visual position c of line r */
-static char *lbuf_chr(struct lbuf *lb, int r, int c)
+static const char *lbuf_chr(struct lbuf *lb, int r, int c)
 {
 	char *ln = lbuf_get(lb, r);
 	return ln ? uc_chr(ln, c) : "";
@@ -199,7 +199,7 @@ int lbuf_wordend(struct lbuf *lb, int big, int dir, int *row, int *off)
 int lbuf_pair(struct lbuf *lb, int *row, int *off)
 {
 	int r = *row, o = *off;
-	char *pairs = "()[]{}";
+	const char *pairs = "()[]{}";
 	int pchr;		/* parenthesis character */
 	int pidx;		/* index into pairs[] */
 	int dep = 1;		/* parenthesis depth */

@@ -7,7 +7,7 @@ static struct rset *dir_rslr;	/* pattern of marks for left-to-right strings */
 static struct rset *dir_rsrl;	/* pattern of marks for right-to-left strings */
 static struct rset *dir_rsctx;	/* direction context patterns */
 
-static int dir_match(char **chrs, int beg, int end, int ctx, int *rec,
+static int dir_match(const char **chrs, int beg, int end, int ctx, int *rec,
 		int *r_beg, int *r_end, int *c_beg, int *c_end, int *dir)
 {
 	int subs[16 * 2];
@@ -47,7 +47,7 @@ static void dir_reverse(int *ord, int beg, int end)
 }
 
 /* reorder the characters based on direction marks and characters */
-static void dir_fix(char **chrs, int *ord, int dir, int beg, int end)
+static void dir_fix(const char **chrs, int *ord, int dir, int beg, int end)
 {
 	int r_beg, r_end, c_beg, c_end;
 	int c_dir, c_rec;
@@ -66,7 +66,7 @@ static void dir_fix(char **chrs, int *ord, int dir, int beg, int end)
 }
 
 /* return the direction context of the given line */
-int dir_context(char *s)
+int dir_context(const char *s)
 {
 	int found = -1;
 	int dir;
@@ -84,10 +84,10 @@ int dir_context(char *s)
 }
 
 /* reorder the characters in s */
-void dir_reorder(char *s, int *ord)
+void dir_reorder(const char *s, int *ord)
 {
 	int n;
-	char **chrs = uc_chop(s, &n);
+	const char **chrs = uc_chop(s, &n);
 	int dir = dir_context(s);
 	if (n && chrs[n - 1][0] == '\n') {
 		ord[n - 1] = n - 1;
@@ -99,11 +99,11 @@ void dir_reorder(char *s, int *ord)
 
 void dir_init(void)
 {
-	char *relr[128];
-	char *rerl[128];
-	char *ctx[128];
+	const char *relr[128];
+	const char *rerl[128];
+	const char *ctx[128];
 	int curctx, i;
-	char *pat;
+	const char *pat;
 	for (i = 0; !conf_dirmark(i, &pat, &curctx, NULL, NULL); i++) {
 		relr[i] = curctx >= 0 ? pat : NULL;
 		rerl[i] = curctx <= 0 ? pat : NULL;

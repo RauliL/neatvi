@@ -13,10 +13,10 @@ struct rstr {
 };
 
 /* return zero if a simple pattern is given */
-static int rstr_simple(struct rstr *rs, char *re)
+static int rstr_simple(struct rstr *rs, const char *re)
 {
-	char *beg;
-	char *end;
+	const char *beg;
+	const char *end;
 	rs->lbeg = re[0] == '^';
 	if (rs->lbeg)
 		re++;
@@ -43,7 +43,7 @@ static int rstr_simple(struct rstr *rs, char *re)
 	return 1;
 }
 
-struct rstr *rstr_make(char *re, int flg)
+struct rstr *rstr_make(const char *re, int flg)
 {
 	struct rstr *rs = malloc(sizeof(*rs));
 	memset(rs, 0, sizeof(*rs));

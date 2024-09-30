@@ -7,7 +7,7 @@
 #define LEN(a)		(sizeof(a) / sizeof((a)[0]))
 
 /* return the length of a utf-8 character */
-int uc_len(char *s)
+int uc_len(const char *s)
 {
 	int c = (unsigned char) s[0];
 	if (~c & 0xc0)		/* ASCII or invalid */
@@ -22,7 +22,7 @@ int uc_len(char *s)
 }
 
 /* the number of utf-8 characters in s */
-int uc_slen(char *s)
+int uc_slen(const char *s)
 {
 	int n;
 	for (n = 0; *s; n++)
@@ -31,7 +31,7 @@ int uc_slen(char *s)
 }
 
 /* the unicode codepoint of the given utf-8 character */
-int uc_code(char *s)
+int uc_code(const char *s)
 {
 	int c = (unsigned char) s[0];
 	if (~c & 0xc0)		/* ASCII or invalid */
@@ -46,7 +46,7 @@ int uc_code(char *s)
 }
 
 /* find the beginning of the character at s[i] */
-char *uc_beg(char *beg, char *s)
+const char *uc_beg(const char *beg, const char *s)
 {
 	while (s > beg && (((unsigned char) *s) & 0xc0) == 0x80)
 		s--;
@@ -54,7 +54,7 @@ char *uc_beg(char *beg, char *s)
 }
 
 /* find the end of the character at s[i] */
-char *uc_end(char *s)
+const char *uc_end(const char *s)
 {
 	if (!*s || !((unsigned char) *s & 0x80))
 		return s;
@@ -66,28 +66,28 @@ char *uc_end(char *s)
 }
 
 /* return a pointer to the character following s */
-char *uc_next(char *s)
+const char *uc_next(const char *s)
 {
 	s = uc_end(s);
 	return *s ? s + 1 : s;
 }
 
 /* return a pointer to the character preceding s */
-char *uc_prev(char *beg, char *s)
+const char *uc_prev(const char *beg, const char *s)
 {
 	return s == beg ? beg : uc_beg(beg, s - 1);
 }
 
-char *uc_lastline(char *s)
+const char *uc_lastline(const char *s)
 {
 	char *r = strrchr(s, '\n');
 	return r ? r + 1 : s;
 }
 
 /* allocate and return an array for the characters in s */
-char **uc_chop(char *s, int *n)
+const char **uc_chop(const char *s, int *n)
 {
-	char **chrs;
+	const char **chrs;
 	int i;
 	*n = uc_slen(s);
 	chrs = malloc((*n + 1) * sizeof(chrs[0]));
@@ -98,7 +98,7 @@ char **uc_chop(char *s, int *n)
 	return chrs;
 }
 
-char *uc_chr(char *s, int off)
+const char *uc_chr(const char *s, int off)
 {
 	int i = 0;
 	while (s && *s) {
@@ -110,19 +110,19 @@ char *uc_chr(char *s, int off)
 }
 
 /* the number of characters between s and s + off */
-int uc_off(char *s, int off)
+int uc_off(const char *s, int off)
 {
-	char *e = s + off;
+	const char *e = s + off;
 	int i;
 	for (i = 0; s < e && *s; i++)
 		s = uc_next(s);
 	return i;
 }
 
-char *uc_sub(char *s, int beg, int end)
+char *uc_sub(const char *s, int beg, int end)
 {
-	char *sbeg = uc_chr(s, beg);
-	char *send = uc_chr(s, end);
+	const char *sbeg = uc_chr(s, beg);
+	const char *send = uc_chr(s, end);
 	int len = sbeg && send && sbeg <= send ? send - sbeg : 0;
 	char *r = malloc(len + 1);
 	memcpy(r, sbeg, len);
@@ -130,13 +130,13 @@ char *uc_sub(char *s, int beg, int end)
 	return r;
 }
 
-char *uc_dup(char *s)
+char *uc_dup(const char *s)
 {
 	char *r = malloc(strlen(s) + 1);
 	return r ? strcpy(r, s) : NULL;
 }
 
-char *uc_cat(char *s, char *r)
+char *uc_cat(const char *s, const char *r)
 {
 	int slen = strlen(s);
 	int rlen = strlen(r);
@@ -147,31 +147,31 @@ char *uc_cat(char *s, char *r)
 	return o;
 }
 
-int uc_isspace(char *s)
+int uc_isspace(const char *s)
 {
 	int c = s ? (unsigned char) *s : 0;
 	return c <= 0x7f && isspace(c);
 }
 
-int uc_isprint(char *s)
+int uc_isprint(const char *s)
 {
 	int c = s ? (unsigned char) *s : 0;
 	return c > 0x7f || isprint(c);
 }
 
-int uc_isalpha(char *s)
+int uc_isalpha(const char *s)
 {
 	int c = s ? (unsigned char) *s : 0;
 	return c > 0x7f || isalpha(c);
 }
 
-int uc_isdigit(char *s)
+int uc_isdigit(const char *s)
 {
 	int c = s ? (unsigned char) *s : 0;
 	return c <= 0x7f && isdigit(c);
 }
 
-int uc_kind(char *c)
+int uc_kind(const char *c)
 {
 	if (uc_isspace(c))
 		return 0;
@@ -331,10 +331,10 @@ static void uc_cput(char *d, int c)
 }
 
 /* shape the given arabic character; returns a static buffer */
-char *uc_shape(char *beg, char *s)
+const char *uc_shape(const char *beg, const char *s)
 {
 	static char out[16];
-	char *r;
+	const char *r;
 	int prev = 0;
 	int next = 0;
 	int curr = uc_code(s);
@@ -591,7 +591,7 @@ static int uc_iszw(int c)
 	return c >= 0x0300 && find(c, zwchars, LEN(zwchars));
 }
 
-int uc_wid(char *s)
+int uc_wid(const char *s)
 {
 	int c = uc_code(s);
 	if (uc_iszw(c))
@@ -600,7 +600,7 @@ int uc_wid(char *s)
 }
 
 /* nonprintable characters */
-int uc_isbell(char *s)
+int uc_isbell(const char *s)
 {
 	int c = (unsigned char) *s;
 	if (c == ' ' || c == '\t' || c == '\n' || (c >= 0x20 && c <= 0x7f))
@@ -610,7 +610,7 @@ int uc_isbell(char *s)
 }
 
 /* combining characters */
-int uc_iscomb(char *s)
+int uc_iscomb(const char *s)
 {
 	int c = (unsigned char) *s;
 	if (c == ' ' || c == '\t' || c == '\n' || (c <= 0x7f && isprint(c)))

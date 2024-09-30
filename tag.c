@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include "vi.h"
 
-static char *tagpath;
+static const char *tagpath;
 static char *tag;
 static long taglen;
 
@@ -72,7 +72,7 @@ static char *tag_next(char *s, int dir)
 	return NULL;
 }
 
-int tag_find(char *name, int *pos, int dir, char *path, int pathlen, char *cmd, int cmdlen)
+int tag_find(const char *name, int *pos, int dir, char *path, int pathlen, char *cmd, int cmdlen)
 {
 	char *s;
 	int len = strlen(name);

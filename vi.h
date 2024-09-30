@@ -10,7 +10,7 @@ struct lbuf *lbuf_make(void);
 void lbuf_free(struct lbuf *lbuf);
 int lbuf_rd(struct lbuf *lbuf, int fd, int beg, int end);
 int lbuf_wr(struct lbuf *lbuf, int fd, int beg, int end);
-void lbuf_edit(struct lbuf *lbuf, char *s, int beg, int end);
+void lbuf_edit(struct lbuf *lbuf, const char *s, int beg, int end);
 char *lbuf_cp(struct lbuf *lbuf, int beg, int end);
 char *lbuf_get(struct lbuf *lbuf, int pos);
 int lbuf_len(struct lbuf *lbuf);
@@ -25,10 +25,10 @@ int lbuf_eol(struct lbuf *lb, int r);
 void lbuf_globset(struct lbuf *lb, int pos, int dep);
 int lbuf_globget(struct lbuf *lb, int pos, int dep);
 /* motions */
-int lbuf_findchar(struct lbuf *lb, char *cs, int cmd, int n, int *r, int *o);
+int lbuf_findchar(struct lbuf *lb, const char *cs, int cmd, int n, int *r, int *o);
 int lbuf_search(struct lbuf *lb, char *kw, int dir, int *r, int *o, int *len);
 int lbuf_paragraphbeg(struct lbuf *lb, int dir, int *row, int *off);
-int lbuf_sectionbeg(struct lbuf *lb, int dir, char *sec, int *row, int *off);
+int lbuf_sectionbeg(struct lbuf *lb, int dir, const char *sec, int *row, int *off);
 int lbuf_wordbeg(struct lbuf *lb, int big, int dir, int *row, int *off);
 int lbuf_wordend(struct lbuf *lb, int big, int dir, int *row, int *off);
 int lbuf_pair(struct lbuf *lb, int *row, int *off);
@@ -39,8 +39,8 @@ void sbuf_free(struct sbuf *sb);
 char *sbuf_done(struct sbuf *sb);
 char *sbuf_buf(struct sbuf *sb);
 void sbuf_chr(struct sbuf *sb, int c);
-void sbuf_str(struct sbuf *sb, char *s);
-void sbuf_mem(struct sbuf *sb, char *s, int len);
+void sbuf_str(struct sbuf *sb, const char *s);
+void sbuf_mem(struct sbuf *sb, const char *s, int len);
 void sbuf_printf(struct sbuf *sbuf, char *s, ...);
 int sbuf_len(struct sbuf *sb);
 void sbuf_cut(struct sbuf *s, int len);
@@ -50,63 +50,63 @@ void sbuf_cut(struct sbuf *s, int len);
 #define RE_NOTBOL		2
 #define RE_NOTEOL		4
 /* regular expression sets: searching for multiple regular expressions */
-struct rset *rset_make(int n, char **pat, int flg);
-int rset_find(struct rset *re, char *s, int n, int *grps, int flg);
+struct rset *rset_make(int n, const char **pat, int flg);
+int rset_find(struct rset *re, const char *s, int n, int *grps, int flg);
 void rset_free(struct rset *re);
-char *re_read(char **src);
+char *re_read(const char **src);
 /* searching for a single pattern regular expression */
-struct rstr *rstr_make(char *re, int flg);
+struct rstr *rstr_make(const char *re, int flg);
 int rstr_find(struct rstr *rs, char *s, int n, int *grps, int flg);
 void rstr_free(struct rstr *rs);
 
 /* rendering lines */
-int *ren_position(char *s);
+int *ren_position(const char *s);
 int ren_next(char *s, int p, int dir);
 int ren_eol(char *s, int dir);
 int ren_pos(char *s, int off);
 int ren_cursor(char *s, int pos);
-int ren_noeol(char *s, int p);
+int ren_noeol(const char *s, int p);
 int ren_off(char *s, int pos);
 int ren_wid(char *s);
 int ren_region(char *s, int c1, int c2, int *l1, int *l2, int closed);
-char *ren_translate(char *s, char *ln);
-int ren_cwid(char *s, int pos);
+const char *ren_translate(const char *s, const char *ln);
+int ren_cwid(const char *s, int pos);
 
 /* text direction */
-int dir_context(char *s);
-void dir_reorder(char *s, int *ord);
+int dir_context(const char *s);
+void dir_reorder(const char *s, int *ord);
 void dir_init(void);
 void dir_done(void);
 
 /* string registers */
 char *reg_get(int c, int *lnmode);
-void reg_put(int c, char *s, int lnmode);
+void reg_put(int c, const char *s, int lnmode);
 void reg_done(void);
 
 /* utf-8 helper functions */
-int uc_len(char *s);
-int uc_wid(char *s);
-int uc_slen(char *s);
-int uc_code(char *s);
-char *uc_chr(char *s, int off);
-int uc_off(char *s, int off);
-char *uc_sub(char *s, int beg, int end);
-char *uc_dup(char *s);
-char *uc_cat(char *s, char *r);
-int uc_isspace(char *s);
-int uc_isprint(char *s);
-int uc_isdigit(char *s);
-int uc_isalpha(char *s);
-int uc_kind(char *c);
-int uc_isbell(char *c);
-int uc_iscomb(char *c);
-char **uc_chop(char *s, int *n);
-char *uc_next(char *s);
-char *uc_prev(char *beg, char *s);
-char *uc_beg(char *beg, char *s);
-char *uc_end(char *s);
-char *uc_shape(char *beg, char *s);
-char *uc_lastline(char *s);
+int uc_len(const char *s);
+int uc_wid(const char *s);
+int uc_slen(const char *s);
+int uc_code(const char *s);
+const char *uc_chr(const char *s, int off);
+int uc_off(const char *s, int off);
+char *uc_sub(const char *s, int beg, int end);
+char *uc_dup(const char *s);
+char *uc_cat(const char *s, const char *r);
+int uc_isspace(const char *s);
+int uc_isprint(const char *s);
+int uc_isdigit(const char *s);
+int uc_isalpha(const char *s);
+int uc_kind(const char *c);
+int uc_isbell(const char *c);
+int uc_iscomb(const char *c);
+const char **uc_chop(const char *s, int *n);
+const char *uc_next(const char *s);
+const char *uc_prev(const char *beg, const char *s);
+const char *uc_beg(const char *beg, const char *s);
+const char *uc_end(const char *s);
+const char *uc_shape(const char *beg, const char *s);
+const char *uc_lastline(const char *s);
 
 /* managing the terminal */
 #define xrows		(term_rows())
@@ -115,7 +115,7 @@ char *uc_lastline(char *s);
 void term_init(void);
 void term_done(void);
 void term_suspend(void);
-void term_str(char *s);
+void term_str(const char *s);
 void term_chr(int ch);
 void term_pos(int r, int c);
 void term_clear(void);
@@ -128,8 +128,8 @@ int term_rowx(void);
 int term_read(void);
 void term_record(void);
 void term_commit(void);
-char *term_seqattr(int att, int old);
-char *term_seqkill(void);
+const char *term_seqattr(int att, int old);
+const char *term_seqkill(void);
 void term_push(char *s, int n);
 char *term_cmd(int *n);
 
@@ -138,33 +138,33 @@ char *term_cmd(int *n);
 #define TK_ESC		(TK_CTL('['))
 
 /* line-oriented input and output */
-char *led_prompt(char *pref, char *post, int *kmap, char *syn, char *hist);
-char *led_input(char *pref, char *post, int *left, int *kmap, char *syn, void (*nextline)(void), void (*showinfo)(char *ln));
-void led_print(char *msg, int row, int left, char *syn);
-void led_printmsg(char *s, int row, char *syn);
-char *led_read(int *kmap);
+char *led_prompt(const char *pref, const char *post, int *kmap, const char *syn, char *hist);
+char *led_input(char *pref, char *post, int *left, int *kmap, const char *syn, void (*nextline)(void), void (*showinfo)(char *ln));
+void led_print(const char *msg, int row, int left, const char *syn);
+void led_printmsg(const char *s, int row, const char *syn);
+const char *led_read(int *kmap);
 
 /* ex commands */
 void ex(void);
-int ex_command(char *cmd);
-char *ex_read(char *msg);
-void ex_print(char *line);
-void ex_show(char *msg);
+int ex_command(const char *cmd);
+char *ex_read(const char *msg);
+void ex_print(const char *line);
+void ex_show(const char *msg);
 int ex_init(char **files);
 void ex_done(void);
 char *ex_path(void);
 char *ex_filetype(void);
 struct lbuf *ex_lbuf(void);
 int ex_kwd(char **kwd, int *dir);
-void ex_kwdset(char *kwd, int dir);
+void ex_kwdset(const char *kwd, int dir);
 int ex_list(char **ls, int size);
 
 #define EXLEN	512		/* ex line length */
 #define xb 	ex_lbuf()
 
 /* process management */
-char *cmd_pipe(char *cmd, char *s, int oproc);
-int cmd_exec(char *cmd);
+char *cmd_pipe(const char *cmd, char *s, int oproc);
+int cmd_exec(const char *cmd);
 
 /* syntax highlighting */
 #define SYN_BD		0x010000
@@ -179,31 +179,31 @@ int cmd_exec(char *cmd);
 #define SYN_FG(a)	((a) & 0xff)
 #define SYN_BG(a)	(((a) >> 8) & 0xff)
 
-int *syn_highlight(char *ft, char *s);
-char *syn_filetype(char *path);
+int *syn_highlight(const char *ft, const char *s);
+const char *syn_filetype(const char *path);
 void syn_context(int att);
 int syn_merge(int old, int new);
 void syn_init(void);
 void syn_done(void);
 
 /* configuration variables */
-int conf_dirmark(int idx, char **pat, int *ctx, int *dir, int *grp);
-int conf_dircontext(int idx, char **pat, int *ctx);
-int conf_placeholder(int idx, char **s, char **d, int *wid);
-int conf_highlight(int idx, char **ft, int **att, char **pat, int *end);
-int conf_filetype(int idx, char **ft, char **pat);
+int conf_dirmark(int idx, const char **pat, int *ctx, int *dir, int *grp);
+int conf_dircontext(int idx, const char **pat, int *ctx);
+int conf_placeholder(int idx, const char **s, const char **d, int *wid);
+int conf_highlight(int idx, const char **ft, int **att, const char **pat, int *end);
+int conf_filetype(int idx, const char **ft, const char **pat);
 int conf_hlrev(void);
 int conf_hlline(void);
 int conf_hlmode(void);
 int conf_hlback(void);
 int conf_mode(void);
-char **conf_kmap(int id);
-int conf_kmapfind(char *name);
-char *conf_digraph(int c1, int c2);
-char *conf_lnpref(void);
-char *conf_definition(char *ft);
-char *conf_section(char *ft);
-char *conf_ecmd(void);
+const char **conf_kmap(int id);
+int conf_kmapfind(const char *name);
+const char *conf_digraph(int c1, int c2);
+const char *conf_lnpref(void);
+const char *conf_definition(char *ft);
+const char *conf_section(char *ft);
+const char *conf_ecmd(void);
 
 /* global variables */
 extern int xrow;
@@ -228,5 +228,5 @@ extern int xhist;
 
 /* tag file handling */
 int tag_init(void);
-int tag_find(char *name, int *pos, int dir, char *path, int pathlen, char *cmd, int cmdlen);
+int tag_find(const char *name, int *pos, int dir, char *path, int pathlen, char *cmd, int cmdlen);
 void tag_done(void);

@@ -12,7 +12,7 @@ typedef struct {
 
 typedef struct regex *regex_t;
 
-int regcomp(regex_t *preg, char *regex, int cflags);
-int regexec(regex_t *preg, char *str, int nmatch, regmatch_t pmatch[], int eflags);
+int regcomp(regex_t *preg, const char *regex, int cflags);
+int regexec(regex_t *preg, const char *str, int nmatch, regmatch_t pmatch[], int eflags);
 int regerror(int errcode, regex_t *preg, char *errbuf, int errbuf_size);
 void regfree(regex_t *preg);

@@ -115,13 +115,13 @@ void lbuf_free(struct lbuf *lb)
 	free(lb);
 }
 
-static int linelength(char *s)
+static int linelength(const char *s)
 {
-	char *r = strchr(s, '\n');
+	const char *r = strchr(s, '\n');
 	return r ? r - s + 1 : strlen(s);
 }
 
-static int linecount(char *s)
+static int linecount(const char *s)
 {
 	int n;
 	for (n = 0; s && *s; n++)
@@ -131,7 +131,7 @@ static int linecount(char *s)
 
 
 /* low-level line replacement */
-static void lbuf_replace(struct lbuf *lb, char *s, int pos, int n_del)
+static void lbuf_replace(struct lbuf *lb, const char *s, int pos, int n_del)
 {
 	int n_ins = linecount(s);
 	int i;
@@ -181,7 +181,7 @@ static void lbuf_replace(struct lbuf *lb, char *s, int pos, int n_del)
 }
 
 /* append undo/redo history */
-static void lbuf_opt(struct lbuf *lb, char *buf, int pos, int n_del)
+static void lbuf_opt(struct lbuf *lb, const char *buf, int pos, int n_del)
 {
 	struct lopt *lo;
 	int i;
@@ -263,7 +263,7 @@ int lbuf_wr(struct lbuf *lbuf, int fd, int beg, int end)
 }
 
 /* replace lines beg through end with buf */
-void lbuf_edit(struct lbuf *lb, char *buf, int beg, int end)
+void lbuf_edit(struct lbuf *lb, const char *buf, int beg, int end)
 {
 	if (beg > lb->ln_n)
 		beg = lb->ln_n;

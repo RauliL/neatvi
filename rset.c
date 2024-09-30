@@ -13,7 +13,7 @@ struct rset {
 	int grpcnt;		/* group count */
 };
 
-static int re_groupcount(char *s)
+static int re_groupcount(const char *s)
 {
 	int n = 0;	/* number of groups */
 	int brk = 0;	/* one if inside a bracket expression */
@@ -46,7 +46,7 @@ static int re_groupcount(char *s)
 	return n;
 }
 
-struct rset *rset_make(int n, char **re, int flg)
+struct rset *rset_make(int n, const char **re, int flg)
 {
 	struct rset *rs = malloc(sizeof(*rs));
 	struct sbuf *sb = sbuf_make();
@@ -87,7 +87,7 @@ struct rset *rset_make(int n, char **re, int flg)
 }
 
 /* return the index of the matching regular expression or -1 if none matches */
-int rset_find(struct rset *rs, char *s, int n, int *grps, int flg)
+int rset_find(struct rset *rs, const char *s, int n, int *grps, int flg)
 {
 	regmatch_t *subs;
 	int found, i, set = -1;
@@ -128,10 +128,10 @@ void rset_free(struct rset *rs)
 }
 
 /* read a regular expression enclosed in a delimiter */
-char *re_read(char **src)
+char *re_read(const char **src)
 {
 	struct sbuf *sbuf;
-	char *s = *src;
+	const char *s = *src;
 	int delim = (unsigned char) *s++;
 	if (!delim)
 		return NULL;

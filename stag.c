@@ -5,10 +5,10 @@
 #define LEN(a)	(sizeof(a) / sizeof((a)[0]))
 
 static struct tag {
-	char *ext;	/* file extension */
-	int grp;	/* tag group in pat */
-	char *pat;	/* tag pattern */
-	char *loc;	/* optional tag location; may reference groups in pat */
+	const char *ext;	/* file extension */
+	int grp;			/* tag group in pat */
+	const char *pat;	/* tag pattern */
+	const char *loc;	/* optional tag location; may reference groups in pat */
 } tags[] = {
 	{"\\.[hc]$", 1, "^#define +([a-zA-Z_0-9]+)\\>", "/^#define +\\1\\>.*$/"},
 	{"\\.[hc]$", 1, "^struct +([a-zA-Z_0-9]+) *\\{", "/^struct +\\1 *\\{/"},
@@ -19,7 +19,7 @@ static struct tag {
 	{"\\.ex$", 2, "^[ \t]*(def|defp|defmodule)[ \t]+([a-zA-Z_0-9]+\\>[?!]?)", "/^[ \\t]*\\1[ \\t]+\\2\\>[?!]?/"},
 };
 
-static int tags_match(int idx, char *path)
+static int tags_match(int idx, const char *path)
 {
 	regex_t re;
 	int ret;
@@ -30,7 +30,7 @@ static int tags_match(int idx, char *path)
 	return ret;
 }
 
-static void replace(char *dst, char *rep, char *ln, regmatch_t *subs)
+static void replace(char *dst, const char *rep, char *ln, regmatch_t *subs)
 {
 	while (rep[0]) {
 		if (rep[0] == '\\' && rep[1]) {
@@ -54,7 +54,7 @@ static void replace(char *dst, char *rep, char *ln, regmatch_t *subs)
 	dst[0] = '\0';
 }
 
-static int mktags(char *path, regex_t *re, int grp, char *rep, int alt)
+static int mktags(char *path, regex_t *re, int grp, const char *rep, int alt)
 {
 	char ln[128];
 	char loc[256];

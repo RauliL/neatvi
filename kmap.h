@@ -1,8 +1,8 @@
-static char *kmap_en[256] = {
+static const char *kmap_en[256] = {
 	[0] = "en",
 };
 
-static char *kmap_fa[256] = {
+static const char *kmap_fa[256] = {
 	[0] = "fa",
 	['`'] = "‍",
 	['1'] = "۱",
@@ -100,9 +100,9 @@ static char *kmap_fa[256] = {
 	['|'] = "|",
 };
 
-static char **kmaps[] = {kmap_en, kmap_fa};
+static const char **kmaps[] = {kmap_en, kmap_fa};
 
-static char *digraphs[][2] = {
+static const char *digraphs[][2] = {
 	{"cq", "’"},
 	{"pl", "+"},
 	{"hy", "-"},

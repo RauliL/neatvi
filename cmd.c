@@ -8,7 +8,7 @@
 #include <sys/wait.h>
 #include "vi.h"
 
-static int cmd_make(char **argv, int *ifd, int *ofd)
+static int cmd_make(const char **argv, int *ifd, int *ofd)
 {
 	int pid;
 	int pipefds0[2];
@@ -32,7 +32,7 @@ static int cmd_make(char **argv, int *ifd, int *ofd)
 			close(pipefds1[0]);
 			close(pipefds1[1]);
 		}
-		execvp(argv[0], argv);
+		execvp(argv[0], (char * const *) argv);
 		exit(1);
 	}
 	if (ifd)
@@ -63,9 +63,9 @@ static int cmd_make(char **argv, int *ifd, int *ofd)
  * is 1, process' output is saved and returned.  If it is 2, in addition
  * to returning the output, it is written to the terminal.
  */
-char *cmd_pipe(char *cmd, char *ibuf, int oproc)
+char *cmd_pipe(const char *cmd, char *ibuf, int oproc)
 {
-	char *argv[] = {"/bin/sh", "-c", cmd, NULL};
+	const char *argv[] = {"/bin/sh", "-c", cmd, NULL};
 	struct pollfd fds[3];
 	struct sbuf *sb = NULL;
 	char buf[512];
@@ -137,7 +137,7 @@ char *cmd_pipe(char *cmd, char *ibuf, int oproc)
 	return NULL;
 }
 
-int cmd_exec(char *cmd)
+int cmd_exec(const char *cmd)
 {
 	cmd_pipe(cmd, NULL, 0);
 	return 0;

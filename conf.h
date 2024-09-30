@@ -5,10 +5,10 @@
 
 /* map file names to file types */
 static struct filetype {
-	char *ft;		/* file type */
-	char *pat;		/* file name pattern */
-	char *def;		/* pattern for global definitions (for gd command) */
-	char *sec;		/* section start pattern (for [[ and ]] commands) */
+	const char *ft;		/* file type */
+	const char *pat;	/* file name pattern */
+	const char *def;	/* pattern for global definitions (for gd command) */
+	const char *sec;	/* section start pattern (for [[ and ]] commands) */
 } filetypes[] = {
 	{"c", "\\.[hc]$", "^([a-zA-Z_].*)?\\<%s\\>"},
 	{"roff", "\\.(ms|me|mom|tr|roff|tmac|[1-9])$", "^\\.(de|nr|ds) +%s\\>"},
@@ -42,9 +42,9 @@ static struct filetype {
 
 /* syntax highlighting patterns */
 static struct highlight {
-	char *ft;		/* the filetype of this pattern */
+	const char *ft;		/* the filetype of this pattern */
 	int att[16];		/* attributes of the matched groups */
-	char *pat;		/* regular expression */
+	const char *pat;	/* regular expression */
 	int end;		/* the group ending this pattern */
 } highlights[] = {
 	/* status bar */
@@ -191,7 +191,7 @@ static struct highlight {
 /* direction context; specifies the base direction of lines */
 static struct dircontext {
 	int dir;
-	char *pat;
+	const char *pat;
 } dircontexts[] = {
 	{-1, "^[" CR2L "]"},
 	{+1, "^[a-zA-Z_0-9]"},
@@ -202,7 +202,7 @@ static struct dirmark {
 	int ctx;	/* the direction context for this mark; 0 means any */
 	int dir;	/* the direction of the matched text */
 	int grp;	/* the nested subgroup; 0 means no groups */
-	char *pat;
+	const char *pat;
 } dirmarks[] = {
 	{+0, +1, 1, "\\\\\\*\\[([^]]+)\\]"},
 	{+1, -1, 0, "[" CR2L "][" CNEUT CR2L "]*[" CR2L "]"},
@@ -214,9 +214,9 @@ static struct dirmark {
 
 /* character placeholders */
 static struct placeholder {
-	char *s;	/* the source character */
-	char *d;	/* the placeholder */
-	int wid;	/* the width of the placeholder */
+	const char *s;	/* the source character */
+	const char *d;	/* the placeholder */
+	int wid;		/* the width of the placeholder */
 } placeholders[] = {
 	{"‌", "-", 1},
 	{"‍", "-", 1},

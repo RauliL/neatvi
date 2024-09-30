@@ -4,7 +4,7 @@
 #include "conf.h"
 #include "kmap.h"
 
-int conf_dirmark(int idx, char **pat, int *ctx, int *dir, int *grp)
+int conf_dirmark(int idx, const char **pat, int *ctx, int *dir, int *grp)
 {
 	if (idx < 0 || idx >= LEN(dirmarks))
 		return 1;
@@ -19,7 +19,7 @@ int conf_dirmark(int idx, char **pat, int *ctx, int *dir, int *grp)
 	return 0;
 }
 
-int conf_dircontext(int idx, char **pat, int *ctx)
+int conf_dircontext(int idx, const char **pat, int *ctx)
 {
 	if (idx < 0 || idx >= LEN(dircontexts))
 		return 1;
@@ -30,7 +30,7 @@ int conf_dircontext(int idx, char **pat, int *ctx)
 	return 0;
 }
 
-int conf_placeholder(int idx, char **s, char **d, int *wid)
+int conf_placeholder(int idx, const char **s, const char **d, int *wid)
 {
 	if (idx < 0 || idx >= LEN(placeholders))
 		return 1;
@@ -43,7 +43,7 @@ int conf_placeholder(int idx, char **s, char **d, int *wid)
 	return 0;
 }
 
-int conf_highlight(int idx, char **ft, int **att, char **pat, int *end)
+int conf_highlight(int idx, const char **ft, int **att, const char **pat, int *end)
 {
 	if (idx < 0 || idx >= LEN(highlights))
 		return 1;
@@ -58,7 +58,7 @@ int conf_highlight(int idx, char **ft, int **att, char **pat, int *end)
 	return 0;
 }
 
-int conf_filetype(int idx, char **ft, char **pat)
+int conf_filetype(int idx, const char **ft, const char **pat)
 {
 	if (idx < 0 || idx >= LEN(filetypes))
 		return 1;
@@ -84,12 +84,12 @@ int conf_mode(void)
 	return MKFILE_MODE;
 }
 
-char **conf_kmap(int id)
+const char **conf_kmap(int id)
 {
 	return kmaps[id];
 }
 
-int conf_kmapfind(char *name)
+int conf_kmapfind(const char *name)
 {
 	int i;
 	for (i = 0; i < LEN(kmaps); i++)
@@ -98,7 +98,7 @@ int conf_kmapfind(char *name)
 	return 0;
 }
 
-char *conf_digraph(int c1, int c2)
+const char *conf_digraph(int c1, int c2)
 {
 	int i;
 	for (i = 0; i < LEN(digraphs); i++)
@@ -107,12 +107,12 @@ char *conf_digraph(int c1, int c2)
 	return NULL;
 }
 
-char *conf_lnpref(void)
+const char *conf_lnpref(void)
 {
 	return LNPREF;
 }
 
-char *conf_definition(char *ft)
+const char *conf_definition(char *ft)
 {
 	int i;
 	for (i = 0; i < LEN(filetypes); i++)
@@ -121,7 +121,7 @@ char *conf_definition(char *ft)
 	return "^%s\\>";
 }
 
-char *conf_section(char *ft)
+const char *conf_section(char *ft)
 {
 	int i;
 	for (i = 0; i < LEN(filetypes); i++)
@@ -130,7 +130,7 @@ char *conf_section(char *ft)
 	return "^\\{";
 }
 
-char *conf_ecmd(void)
+const char *conf_ecmd(void)
 {
 	return ECMD;
 }

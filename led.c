@@ -6,10 +6,10 @@
 #include <unistd.h>
 #include "vi.h"
 
-static char *kmap_map(int kmap, int c)
+static const char *kmap_map(int kmap, int c)
 {
 	static char cs[4];
-	char **keymap = conf_kmap(kmap);
+	const char **keymap = conf_kmap(kmap);
 	cs[0] = c;
 	return keymap[c] ? keymap[c] : cs;
 }
@@ -19,7 +19,7 @@ static int led_pos(int dir, int pos, int beg, int end)
 	return dir >= 0 ? pos - beg : end - pos - 1;
 }
 
-static int led_offdir(char **chrs, int *pos, int i)
+static int led_offdir(const char **chrs, int *pos, int i)
 {
 	if (pos[i] + ren_cwid(chrs[i], pos[i]) == pos[i + 1])
 		return +1;
@@ -29,7 +29,7 @@ static int led_offdir(char **chrs, int *pos, int i)
 }
 
 /* highlight text in reverse direction */
-static void led_markrev(int n, char **chrs, int *pos, int *att)
+static void led_markrev(int n, const char **chrs, int *pos, int *att)
 {
 	int i = 0, j;
 	int hl = conf_hlrev();
@@ -47,13 +47,13 @@ static void led_markrev(int n, char **chrs, int *pos, int *att)
 }
 
 /* render and highlight a line */
-static char *led_render(char *s0, int cbeg, int cend, char *syn)
+static char *led_render(const char *s0, int cbeg, int cend, const char *syn)
 {
 	int n;
 	int *pos;	/* pos[i]: the screen position of the i-th character */
 	int *off;	/* off[i]: the character at screen position i */
 	int *att;	/* att[i]: the attributes of i-th character */
-	char **chrs;	/* chrs[i]: the i-th character in s1 */
+	const char **chrs;	/* chrs[i]: the i-th character in s1 */
 	int clast = 0;
 	int att_old = 0;
 	struct sbuf *out;
@@ -119,7 +119,7 @@ static char *led_render(char *s0, int cbeg, int cend, char *syn)
 }
 
 /* print a line on the screen */
-void led_print(char *s, int row, int left, char *syn)
+void led_print(const char *s, int row, int left, const char *syn)
 {
 	char *r = led_render(s, left, left + xcols, syn);
 	term_pos(row, 0);
@@ -137,7 +137,7 @@ static int td_set(int td)
 }
 
 /* print a line on the screen; for ex messages */
-void led_printmsg(char *s, int row, char *syn)
+void led_printmsg(const char *s, int row, const char *syn)
 {
 	int td = td_set(+2);
 	char *r = led_render(s, 0, xcols, syn);
@@ -148,17 +148,17 @@ void led_printmsg(char *s, int row, char *syn)
 	free(r);
 }
 
-static int led_lastchar(char *s)
+static int led_lastchar(const char *s)
 {
-	char *r = *s ? strchr(s, '\0') : s;
+	const char *r = *s ? strchr(s, '\0') : s;
 	if (r != s)
 		r = uc_beg(s, r - 1);
 	return r - s;
 }
 
-static int led_lastword(char *s)
+static int led_lastword(const char *s)
 {
-	char *r = *s ? uc_beg(s, strchr(s, '\0') - 1) : s;
+	const char *r = *s ? uc_beg(s, strchr(s, '\0') - 1) : s;
 	int kind;
 	while (r > s && uc_isspace(r))
 		r = uc_beg(s, r - 1);
@@ -168,8 +168,8 @@ static int led_lastword(char *s)
 	return r - s;
 }
 
-static void led_printparts(char *ai, char *pref, char *main,
-		char *post, int *left, int kmap, char *syn)
+static void led_printparts(char *ai, const char *pref, char *main,
+		const char *post, int *left, int kmap, const char *syn)
 {
 	struct sbuf *ln;
 	int off, pos;
@@ -202,7 +202,7 @@ static void led_printparts(char *ai, char *pref, char *main,
 }
 
 /* continue reading the character starting with c */
-static char *led_readchar(int c, int kmap)
+static const char *led_readchar(int c, int kmap)
 {
 	static char buf[8];
 	int c1, c2;
@@ -235,7 +235,7 @@ static char *led_readchar(int c, int kmap)
 }
 
 /* read a character from the terminal */
-char *led_read(int *kmap)
+const char *led_read(int *kmap)
 {
 	int c = term_read();
 	while (!TK_INT(c)) {
@@ -278,14 +278,14 @@ static int led_match(char *out, int len, char *kwd, char *opt)
 }
 
 /* read a line from the terminal */
-static char *led_line(char *pref, char *post, char *ai, int ai_max, int *left,
-	int *key, int *kmap, char *syn, char *hist, void (*showinfo)(char *ln))
+static char *led_line(const char *pref, const char *post, char *ai, int ai_max, int *left,
+	int *key, int *kmap, const char *syn, char *hist, void (*showinfo)(char *ln))
 {
 	struct sbuf *sb;
 	int ai_len = strlen(ai);
 	int c, y, lnmode;
 	char cmp[64] = "";
-	char *cs;
+	const char *cs;
 	sb = sbuf_make();
 	if (pref == NULL)
 		pref = "";
@@ -369,12 +369,12 @@ static char *led_line(char *pref, char *post, char *ai, int ai_max, int *left,
 }
 
 /* read an ex command */
-char *led_prompt(char *pref, char *post, int *kmap, char *syn, char *hist)
+char *led_prompt(const char *pref, const char *post, int *kmap, const char *syn, char *hist)
 {
 	int key;
 	int td = td_set(+2);
 	int left = 0;
-	char *s = led_line(pref, post, "", 0, &left, &key, kmap, syn, hist, NULL);
+	char *s = led_line(pref, post, (char *) "", 0, &left, &key, kmap, syn, hist, NULL);
 	td_set(td);
 	if (key == '\n') {
 		struct sbuf *sb = sbuf_make();
@@ -400,7 +400,7 @@ static int linecount(char *s)
 }
 
 /* read visual command input */
-char *led_input(char *pref, char *post, int *left, int *kmap, char *syn, void (*nextline)(void), void (*showinfo)(char *ln))
+char *led_input(char *pref, char *post, int *left, int *kmap, const char *syn, void (*nextline)(void), void (*showinfo)(char *ln))
 {
 	struct sbuf *sb = sbuf_make();
 	char ai[128];
